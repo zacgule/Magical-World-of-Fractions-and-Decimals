@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分數與小數的奇幻世界 - 小三數學互動教學站</title>
+    <!-- 引入 Tailwind CSS 進行童趣美觀的排版 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts 中文字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #F0F9FF;
+        }
+        .kids-font {
+            font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif;
+        }
+        /* 彈跳按鈕動畫效果 */
+        .bouncy-btn {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .bouncy-btn:active {
+            transform: scale(0.92);
+        }
+        /* 繽紛漸變背景與卡片邊框 */
+        .kids-card {
+            box-shadow: 0 8px 0px #CBD5E1;
+            transition: all 0.2s ease;
+        }
+        .kids-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0px #94A3B8;
+        }
+        .kids-card-primary {
+            box-shadow: 0 8px 0px #BFDBFE;
+            border: 4px solid #3B82F6;
+        }
+        .kids-card-success {
+            box-shadow: 0 8px 0px #A7F3D0;
+            border: 4px solid #10B981;
+        }
+        .kids-card-warning {
+            box-shadow: 0 8px 0px #FDE68A;
+            border: 4px solid #F59E0B;
+        }
+        /* 美化滑桿 */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #F59E0B;
+            cursor: pointer;
+            border: 3px solid #FFF;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-yellow-200 overflow-x-hidden">
+
+    <header class="bg-white border-b-4 border-blue-200 sticky top-0 z-50 px-4 py-3 shadow-sm">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- 網站標題及 Mascot -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <span class="text-4xl animate-bounce">🍕</span>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-blue-600 tracking-wide kids-font">分數與小數的奇幻世界</h1>
+                    <p class="text-xs text-gray-500 font-bold">根據香港教育局 (EDB) 小學三年級課程設計</p>
+                </div>
+            </div>
+            
+            <!-- 導航選單 -->
+            <nav class="flex flex-wrap justify-center gap-2 bg-blue-50 p-1.5 rounded-2xl border border-blue-100 w-full md:w-auto">
+                <button onclick="switchTab('home')" id="tab-home" class="bouncy-btn text-sm md:text-base font-bold px-4 py-2.5 rounded-xl transition text-blue-700 bg-white shadow-sm border border-blue-200">
+                    🏠 主頁
+                </button>
+                <button onclick="switchTab('fraction')" id="tab-fraction" class="bouncy-btn text-sm md:text-base font-bold px-4 py-2.5 rounded-xl transition text-blue-700 hover:bg-blue-100">
+                    🍕 第一課：分數
+                </button>
+                <button onclick="switchTab('decimal')" id="tab-decimal" class="bouncy-btn text-sm md:text-base font-bold px-4 py-2.5 rounded-xl transition text-blue-700 hover:bg-blue-100">
+                    🔢 第二課：小數
+                </button>
+                <button onclick="switchTab('games')" id="tab-games" class="bouncy-btn text-sm md:text-base font-bold px-4 py-2.5 rounded-xl transition text-blue-700 hover:bg-blue-100">
+                    🎮 遊戲挑戰站
+                </button>
+            </nav>
+            
+            <!-- 音效與得分快捷顯示 -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMute()" id="mute-btn" class="p-2 rounded-xl bg-gray-100 border border-gray-300 bouncy-btn text-lg" title="切換音效">
+                    🔊
+                </button>
+                <div class="bg-yellow-400 border-2 border-yellow-600 text-yellow-950 px-3 py-1.5 rounded-xl font-bold text-sm shadow-sm flex items-center gap-1.5">
+                    <span>🏆 積分:</span>
+                    <span id="header-score" class="text-base font-black">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 粒子/彩色紙屑動畫 Canvas 層 -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 space-y-8">
+        
+        <!-- ==================== 分頁 1：主頁 / 課程簡介 ==================== -->
+        <section id="page-home" class="tab-page space-y-8 animate-fade-in">
+            <!-- 橫幅歡迎卡 -->
+            <div class="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-3xl p-6 md:p-10 text-white shadow-lg relative overflow-hidden kids-card">
+                <div class="absolute -right-12 -top-12 text-9xl opacity-10 pointer-events-none kids-font">➗</div>
+                <div class="max-w-2xl space-y-4">
+                    <span class="bg-yellow-300 text-yellow-900 text-xs md:text-sm font-black px-3 py-1 rounded-full uppercase tracking-wider">小三數學魔法島</span>
+                    <h2 class="text-3xl md:text-5xl font-black mb-2 kids-font drop-shadow-md">嗨！歡迎來到數學魔法島！</h2>
+                    <p class="text-base md:text-lg opacity-95 leading-relaxed font-medium">
+                        在這裡，你會發現一整個披薩可以用「分數」來公平分享，而小小的格子則藏著「小數」的秘密。快跟著魔法小助教一起出發，邊玩遊戲邊探索吧！
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchTab('fraction')" class="bg-yellow-400 text-yellow-950 font-black text-lg px-6 py-3 rounded-2xl shadow-lg hover:bg-yellow-300 bouncy-btn transition border-b-4 border-yellow-600">
+                            出發切披薩 🍕
+                        </button>
+                        <button onclick="switchTab('decimal')" class="bg-white text-blue-700 font-black text-lg px-6 py-3 rounded-2xl shadow-lg hover:bg-gray-100 bouncy-btn transition border-b-4 border-blue-200">
+                            認識小數點 🔢
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 小助教角色引導區 -->
+            <div class="bg-white border-4 border-dashed border-sky-300 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-6">
+                <div class="text-6xl animate-bounce">😸</div>
+                <div class="space-y-2 text-center md:text-left">
+                    <h4 class="text-xl font-bold text-sky-800">魔法助教「喵喵」對你說：</h4>
+                    <p class="text-gray-600 font-medium leading-relaxed">
+                        「小朋友，今天我們的任務很簡單！只要完成第一課和第二課的魔法卡，就能開啟『遊戲挑戰站』！在那裡答對問題可以幫我收集美味的能量小披薩哦！你準備好了嗎？」
+                    </p>
+                </div>
+            </div>
+
+            <!-- 兩大核心板塊導航卡 -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 第一課卡片 -->
+                <div class="bg-white rounded-3xl p-6 kids-card kids-card-success flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-4xl bg-emerald-100 p-2.5 rounded-2xl">🍕</span>
+                            <h3 class="text-2xl font-black text-emerald-800 kids-font">第一課：分數概念與比較</h3>
+                        </div>
+                        <p class="text-gray-600 font-medium leading-relaxed">
+                            我們將用美味的披薩帶你建立「分子」與「分母」的直觀印象。同時，你還能學會怎樣一秒看出兩個「同分母分數」誰大誰小！
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-bold text-emerald-700">
+                            <span class="bg-emerald-100 px-2.5 py-1 rounded-lg">#等分概念</span>
+                            <span class="bg-emerald-100 px-2.5 py-1 rounded-lg">#分子分母</span>
+                            <span class="bg-emerald-100 px-2.5 py-1 rounded-lg">#同分母比較</span>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('fraction')" class="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl bouncy-btn shadow-md border-b-4 border-emerald-700">
+                        進入第一課 ➔
+                    </button>
+                </div>
+
+                <!-- 第二課卡片 -->
+                <div class="bg-white rounded-3xl p-6 kids-card kids-card-warning flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-4xl bg-amber-100 p-2.5 rounded-2xl">🔢</span>
+                            <h3 class="text-2xl font-black text-amber-800 kids-font">第二課：認識兩位小數</h3>
+                        </div>
+                        <p class="text-gray-600 font-medium leading-relaxed">
+                            如果一個完整物體被切成 100 份該怎麼辦？神奇的「小數點」登場！我們會學習十分位、百分位，以及小學最常犯錯的兩位小數讀法！
+                        </p>
+                        <div class="flex flex-wrap gap-2 text-xs font-bold text-amber-700">
+                            <span class="bg-amber-100 px-2.5 py-1 rounded-lg">#百格方塊</span>
+                            <span class="bg-amber-100 px-2.5 py-1 rounded-lg">#十分位與百分位</span>
+                            <span class="bg-amber-100 px-2.5 py-1 rounded-lg">#小數點讀寫</span>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('decimal')" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-3.5 rounded-xl bouncy-btn shadow-md border-b-4 border-amber-700">
+                        進入第二課 ➔
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== STREAMING_CHUNK: 分頁 2：第一課 - 分數概念與比較 ==================== -->
+        <section id="page-fraction" class="tab-page hidden space-y-8 animate-fade-in">
+            <!-- 知識大圖解 -->
+            <div class="bg-emerald-50 border-4 border-emerald-200 rounded-3xl p-6">
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="space-y-4 md:w-2/3">
+                        <span class="bg-emerald-200 text-emerald-800 text-xs font-black px-3 py-1 rounded-md">重點概念解說</span>
+                        <h3 class="text-2xl md:text-3xl font-black text-emerald-900 kids-font">1. 什麼是分數？</h3>
+                        <p class="text-gray-700 font-medium leading-relaxed">
+                            把一個整體的東西（例如一個圓圓的披薩），<strong>平均分成若干份</strong>。其中的一份或幾份，我們就可以用「分數」來記錄！
+                        </p>
+                        
+                        <!-- 帶有注釋的位值公式卡 -->
+                        <div class="bg-white p-4 rounded-2xl border-2 border-emerald-100 flex items-center justify-center gap-6 max-w-sm mx-auto shadow-sm">
+                            <div class="text-center font-black text-2xl px-6 py-2 border-2 border-dashed border-emerald-300 rounded-2xl bg-emerald-50">
+                                <div class="text-blue-600 font-black">分子 <span class="text-xs text-gray-500 font-bold block">(拿走了多少份)</span></div>
+                                <div class="h-1 bg-gray-500 my-1 rounded-full"></div>
+                                <div class="text-red-600 font-black">分母 <span class="text-xs text-gray-500 font-bold block">(總共平均分成的份數)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/3 flex justify-center">
+                        <!-- 可愛小徽章 -->
+                        <div class="text-center p-4 bg-white rounded-2xl border-2 border-emerald-300 shadow-sm">
+                            <span class="text-7xl block animate-pulse">🍕</span>
+                            <span class="text-xs text-gray-400 font-bold">平均分 = 公平！</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 互動切披薩工具 -->
+            <div class="bg-white border-4 border-gray-200 rounded-3xl p-6 kids-card">
+                <h3 class="text-xl md:text-2xl font-black text-gray-800 mb-6 text-center md:text-left kids-font">🎨 魔法動態切披薩：自己動手調分母分子</h3>
+                
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <!-- 左：控制板 -->
+                    <div class="space-y-6 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <!-- 調分母 -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-gray-600">步驟 1：你要把披薩分成幾份？（調整分母）</label>
+                            <div class="flex items-center gap-3">
+                                <button onclick="adjustDenominator(-1)" class="w-10 h-10 bg-red-100 hover:bg-red-200 text-red-700 font-black rounded-xl border border-red-300 bouncy-btn shadow-xs">-</button>
+                                <div class="text-center min-w-[80px]">
+                                    <span id="denom-val" class="text-2xl font-black text-red-600">8</span>
+                                    <span class="text-xs text-gray-400 block font-bold">分母</span>
+                                </div>
+                                <button onclick="adjustDenominator(1)" class="w-10 h-10 bg-green-100 hover:bg-green-200 text-green-700 font-black rounded-xl border border-green-300 bouncy-btn shadow-xs">+</button>
+                            </div>
+                            <p class="text-xs text-gray-400">（小三階段我們常用 2, 4, 8, 10 等等來平分唷！）</p>
+                        </div>
+
+                        <!-- 調分子 -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-gray-600">步驟 2：你要拿走多少份？（調整分子）</label>
+                            <div class="flex items-center gap-3">
+                                <button onclick="adjustNumerator(-1)" class="w-10 h-10 bg-red-100 hover:bg-red-200 text-red-700 font-black rounded-xl border border-red-300 bouncy-btn shadow-xs">-</button>
+                                <div class="text-center min-w-[80px]">
+                                    <span id="numer-val" class="text-2xl font-black text-blue-600">3</span>
+                                    <span class="text-xs text-gray-400 block font-bold">分子</span>
+                                </div>
+                                <button onclick="adjustNumerator(1)" class="w-10 h-10 bg-green-100 hover:bg-green-200 text-green-700 font-black rounded-xl border border-green-300 bouncy-btn shadow-xs">+</button>
+                            </div>
+                        </div>
+
+                        <!-- 實時分數顯示 -->
+                        <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
+                            <span class="text-base font-bold text-gray-700">目前代表的分數：</span>
+                            <div class="inline-flex flex-col items-center justify-center font-black text-3xl bg-white px-6 py-2 rounded-2xl border-2 shadow-inner">
+                                <div class="text-blue-600" id="live-numer">3</div>
+                                <div class="w-10 h-1 bg-gray-600 my-1 rounded-full"></div>
+                                <div class="text-red-600" id="live-denom">8</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右：披薩 SVG 渲染區 -->
+                    <div class="flex flex-col items-center justify-center bg-yellow-50/50 p-6 rounded-2xl border border-dashed border-amber-200 min-h-[280px]">
+                        <svg id="live-pizza-svg" width="200" height="200" viewBox="0 0 220 220" class="drop-shadow-lg">
+                            <!-- JS 動態生成 -->
+                        </svg>
+                        <p id="live-pizza-desc" class="text-sm font-bold text-amber-800 mt-4 text-center">
+                            披薩被平分成 8 份，你拿了 3 份。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border-4 border-emerald-300 rounded-3xl p-6 kids-card">
+                <h3 class="text-xl md:text-2xl font-black text-emerald-800 mb-4 kids-font">⚖️ 2. 同分母分數的大小比較</h3>
+                <p class="text-gray-600 font-medium leading-relaxed mb-4">
+                    當兩個分數的<strong>分母（分成的份數）一樣多</strong>時，代表每一個切片的大小都是一模一樣的。這個時候，我們只需要比較<strong>分子（看誰拿的份數多）</strong>：
+                </p>
+                
+                <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-amber-900 font-bold text-center text-sm md:text-base shadow-sm">
+                    💡 喵喵秘訣：「分母一樣（切得一樣大），分子越大（拿得越多），分數就越大！」
+                </div>
+
+                <!-- 視覺對比展示 -->
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="border-2 border-gray-100 rounded-2xl p-4 bg-slate-50 flex flex-col items-center gap-3">
+                        <svg id="compare-frac-svg-1" width="130" height="130" viewBox="0 0 220 220"></svg>
+                        <div class="inline-flex flex-col items-center justify-center font-black text-xl bg-white px-4 py-1.5 rounded-xl border">
+                            <div class="text-blue-600">3</div>
+                            <div class="w-8 h-0.5 bg-gray-500 my-0.5"></div>
+                            <div class="text-red-600">8</div>
+                        </div>
+                    </div>
+                    <div class="border-2 border-gray-100 rounded-2xl p-4 bg-slate-50 flex flex-col items-center gap-3">
+                        <svg id="compare-frac-svg-2" width="130" height="130" viewBox="0 0 220 220"></svg>
+                        <div class="inline-flex flex-col items-center justify-center font-black text-xl bg-white px-4 py-1.5 rounded-xl border">
+                            <div class="text-blue-600">5</div>
+                            <div class="w-8 h-0.5 bg-gray-500 my-0.5"></div>
+                            <div class="text-red-600">8</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center font-black text-2xl md:text-3xl text-blue-700 mt-6 bg-blue-50 py-3 rounded-2xl border border-blue-100">
+                    因為 3 比 5 小，所以： 
+                    <span class="inline-flex flex-col items-center align-middle font-black mx-2 text-lg">
+                        <span>3</span><span class="h-0.5 w-6 bg-gray-600 my-0.5"></span><span>8</span>
+                    </span>
+                    <span class="text-red-500 text-3xl font-black align-middle mx-2">&lt;</span>
+                    <span class="inline-flex flex-col items-center align-middle font-black mx-2 text-lg">
+                        <span>5</span><span class="h-0.5 w-6 bg-gray-600 my-0.5"></span><span>8</span>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== STREAMING_CHUNK: 分頁 3：第二課 - 兩位小數的讀寫和比較 ==================== -->
+        <section id="page-decimal" class="tab-page hidden space-y-8 animate-fade-in">
+            <!-- 知識大圖解：認識小數 -->
+            <div class="bg-amber-50 border-4 border-amber-200 rounded-3xl p-6">
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="space-y-4 md:w-2/3">
+                        <span class="bg-amber-200 text-amber-800 text-xs font-black px-3 py-1 rounded-md">重點概念解說</span>
+                        <h3 class="text-2xl md:text-3xl font-black text-amber-950 kids-font">1. 什麼是兩位小數？</h3>
+                        <p class="text-gray-700 font-medium leading-relaxed">
+                            我們把一個<strong>完整的大正方形看作「1」</strong>，並平均分成 <strong>100 個小格子</strong>：
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 font-medium pl-2">
+                            <li>其中的 1 格，代表一百分之一，用小數寫作：<strong class="text-amber-600 text-lg">0.01</strong>。</li>
+                            <li>其中的 10 格，代表十分之一（也就是十格），用小數寫作：<strong class="text-amber-600 text-lg">0.10</strong> （通常簡記為 0.1）。</li>
+                        </ul>
+                    </div>
+                    <div class="md:w-1/3 flex justify-center">
+                        <!-- 百格圖圖解 -->
+                        <div class="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-sm text-center">
+                            <div class="grid grid-cols-10 gap-0.5 w-24 h-24 bg-gray-200 p-1 mx-auto rounded">
+                                <div class="bg-amber-400"></div>
+                                <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
+                                <div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-white"></div>
+                                <!-- 填充其他部分代表1格 -->
+                                <div class="col-span-10 bg-white/50 h-full"></div>
+                            </div>
+                            <span class="text-xs text-gray-400 font-bold block mt-2">1 格 / 100 格 = 0.01</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 數位表（位值表）區 -->
+            <div class="bg-white border-4 border-gray-200 rounded-3xl p-6 kids-card">
+                <h3 class="text-xl md:text-2xl font-black text-gray-800 mb-4 kids-font">📊 2. 小數數位表（位值表）</h3>
+                <p class="text-gray-600 font-medium leading-relaxed mb-6">
+                    小數點「<strong class="text-red-500">.</strong>」的左邊是整數，右邊是小數部分。跟隨數位表看看每個數字的家在哪裡：
+                </p>
+
+                <!-- 動態數位位值展示器 -->
+                <div class="bg-slate-50 border-2 border-slate-200 p-6 rounded-2xl max-w-xl mx-auto space-y-6">
+                    <div class="grid grid-cols-4 text-center border-4 border-blue-300 rounded-2xl overflow-hidden bg-white shadow-md">
+                        <div class="bg-blue-100 py-3 font-black text-blue-900 border-r border-blue-200 kids-font text-lg">個位</div>
+                        <div class="bg-red-100 py-3 font-black text-red-950 border-r border-red-200 kids-font text-lg">小數點</div>
+                        <div class="bg-emerald-100 py-3 font-black text-emerald-900 border-r border-emerald-200 kids-font text-lg">十分位</div>
+                        <div class="bg-purple-100 py-3 font-black text-purple-900 kids-font text-lg">百分位</div>
+                        
+                        <div id="pv-ones" class="py-5 text-4xl font-black text-blue-600 border-r border-t-2 border-blue-100">0</div>
+                        <div class="py-5 text-5xl font-black text-red-500 border-r border-t-2 border-blue-100">.</div>
+                        <div id="pv-tenths" class="py-5 text-4xl font-black text-emerald-600 border-r border-t-2 border-blue-100">4</div>
+                        <div id="pv-hundredths" class="py-5 text-4xl font-black text-purple-600 border-t-2 border-blue-100">5</div>
+                    </div>
+
+                    <div class="text-center font-bold text-gray-500 text-sm">
+                        這個小數代表有 <span class="text-blue-600">0 個一</span>，<span class="text-emerald-600">4 個十分之一</span> 和 <span class="text-purple-600">5 個百分之一</span>。
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border-4 border-amber-300 rounded-3xl p-6 kids-card">
+                <h3 class="text-xl md:text-2xl font-black text-amber-800 mb-4 kids-font">✨ 3. 玩轉百格圖與小數讀法</h3>
+                <p class="text-gray-600 font-medium mb-6">點擊百格圖或拖動下方滑桿，看看小數是如何變化的，並掌握正確讀法！</p>
+                
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <!-- 左：控制 -->
+                    <div class="space-y-6 bg-amber-50/50 p-6 rounded-2xl border border-amber-200">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-gray-700">拖動滑桿亮起格子（0 - 100 格）：</label>
+                            <input type="range" id="decimal-slider" min="0" max="100" value="45" oninput="updateDecimalWidget(this.value)" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-amber-100 text-center">
+                            <div>
+                                <span class="text-xs text-gray-400 font-bold block">亮起格數</span>
+                                <span id="decimal-cells" class="text-2xl font-black text-gray-700">45 格</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-400 font-bold block">對應小數</span>
+                                <span id="decimal-value" class="text-2xl font-black text-amber-600">0.45</span>
+                            </div>
+                        </div>
+
+                        <!-- 避坑讀法指南 -->
+                        <div class="bg-rose-50 border-2 border-rose-200 p-4 rounded-xl space-y-2">
+                            <span class="inline-block bg-rose-200 text-rose-800 text-xs font-black px-2.5 py-1 rounded-md">⚠️ 香港考卷最常扣分位</span>
+                            <h4 class="font-black text-rose-950">小數點後讀法魔法：</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed font-medium">
+                                小數點後的數字，我們必須<strong>一個一個單獨讀出</strong>，絕不能連在一起讀！
+                            </p>
+                            <div class="text-base font-bold bg-white p-2.5 rounded-lg border border-rose-100 text-center">
+                                <span class="text-amber-600">0.45</span> 讀作：<span class="text-green-600 font-black">零點四五</span> 
+                                <span class="text-xs text-red-500 line-through block mt-1">(而非 零點四十五 ❌)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右：百格圖容器 -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div id="hundred-grid" class="grid grid-cols-10 gap-1 p-2 bg-gray-300 rounded-2xl shadow-inner w-[240px] h-[240px]">
+                            <!-- JS 動態生成 100 個小格子 -->
+                        </div>
+                        <span class="text-xs text-gray-400 font-bold mt-2">（每一排代表 0.10，每一格代表 0.01）</span>
+                    </div>
+                </div>
+
+                <!-- 點擊翻牌學經典讀寫 -->
+                <div class="border-t border-slate-100 pt-6 mt-6 space-y-4">
+                    <h4 class="font-black text-gray-700 text-lg">🔍 點選字卡翻轉：練習香港考卷經典兩位小數讀法</h4>
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <div class="border-2 border-slate-100 p-4 rounded-2xl bg-slate-50 flex flex-col justify-between items-center gap-3 text-center shadow-xs">
+                            <span class="font-black text-2xl text-slate-800">0.52</span>
+                            <button onclick="revealReadText(this, '零點五二')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs py-2 rounded-xl bouncy-btn transition">顯示正確讀法</button>
+                        </div>
+                        <div class="border-2 border-slate-100 p-4 rounded-2xl bg-slate-50 flex flex-col justify-between items-center gap-3 text-center shadow-xs">
+                            <span class="font-black text-2xl text-slate-800">0.07</span>
+                            <button onclick="revealReadText(this, '零點零七')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs py-2 rounded-xl bouncy-btn transition">顯示正確讀法</button>
+                        </div>
+                        <div class="border-2 border-slate-100 p-4 rounded-2xl bg-slate-50 flex flex-col justify-between items-center gap-3 text-center shadow-xs">
+                            <span class="font-black text-2xl text-slate-800">0.30</span>
+                            <button onclick="revealReadText(this, '零點三零')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs py-2 rounded-xl bouncy-btn transition">顯示正確讀法</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border-4 border-amber-300 rounded-3xl p-6 kids-card">
+                <h3 class="text-xl md:text-2xl font-black text-amber-800 mb-4 kids-font">⚖️ 4. 兩位小數的比較方法</h3>
+                <p class="text-gray-600 font-medium mb-6">比較兩個小數的大小，就像看小朋友的身高一樣，我們要<strong>由左往右（高位到低位）一個數位一個數位進行比對</strong>：</p>
+                
+                <div class="grid md:grid-cols-3 gap-4 text-center">
+                    <div class="p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl">
+                        <span class="font-black text-blue-800 block text-lg mb-1 kids-font">第 1 步：看「個位」</span>
+                        整數（個位）比較大的，整個小數就直接獲勝！
+                    </div>
+                    <div class="p-4 bg-emerald-50 border-2 border-emerald-100 rounded-2xl">
+                        <span class="font-black text-emerald-800 block text-lg mb-1 kids-font">第 2 步：看「十分位」</span>
+                        如果個位一樣，就比小數點後第一位。
+                    </div>
+                    <div class="p-4 bg-purple-50 border-2 border-purple-100 rounded-2xl">
+                        <span class="font-black text-purple-800 block text-lg mb-1 kids-font">第 3 步：看「百分位」</span>
+                        如果十分位也一樣，才去比較小數點後第二位！
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border-2 border-dashed flex flex-col md:flex-row justify-around items-center gap-4 mt-6">
+                    <div class="text-lg font-bold">範例：比較 <span class="text-blue-600">0.45</span> 與 <span class="text-emerald-600">0.51</span>：</div>
+                    <div class="text-sm md:text-base text-gray-700 font-medium">
+                        個位都是 0 ➔ 比較十分位：<br>
+                        0.45 的十分位是 <span class="font-black text-blue-600 text-lg">4</span>，0.51 的十分位是 <span class="font-black text-emerald-600 text-lg">5</span>。<br>
+                        因為 4 比 5 小，所以：<span class="text-xl font-black text-amber-600">0.45 &lt; 0.51</span> 成立！
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== STREAMING_CHUNK: 分頁 4：遊戲挑戰站 ==================== -->
+        <section id="page-games" class="tab-page hidden space-y-8 animate-fade-in">
+            <!-- 遊戲計分板與歡迎導言 -->
+            <div class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-400 rounded-3xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-6 kids-card">
+                <div class="space-y-2">
+                    <span class="bg-purple-700 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">GAME CENTER</span>
+                    <h2 class="text-3xl font-black kids-font">歡迎來到數學遊樂場！</h2>
+                    <p class="text-sm opacity-90 font-medium">答對一題可獲得 10 分！通關後能解鎖滿天飛舞的魔法櫻花雨慶祝喔！</p>
+                </div>
+                <div class="bg-white text-purple-950 p-4 rounded-2xl text-center shadow-md border-4 border-purple-300 min-w-[160px]">
+                    <span class="text-xs font-bold block text-gray-500">挑戰總得分</span>
+                    <span id="game-total-score" class="text-4xl font-black text-purple-600 kids-font">0</span>
+                </div>
+            </div>
+
+            <!-- 雙遊戲切換按鈕組 -->
+            <div class="flex flex-wrap gap-3 border-b-2 border-gray-200 pb-3 justify-center md:justify-start">
+                <button onclick="switchGame('A')" id="btn-game-A" class="px-5 py-3 font-black rounded-2xl bg-purple-600 text-white shadow-md border-b-4 border-purple-800 bouncy-btn transition text-sm md:text-base">
+                    🍕 遊戲 A：披薩爭奪戰 (分數比較)
+                </button>
+                <button onclick="switchGame('B')" id="btn-game-B" class="px-5 py-3 font-black rounded-2xl bg-gray-200 text-gray-700 border-b-4 border-gray-300 bouncy-btn transition hover:bg-gray-300 text-sm md:text-base">
+                    🔢 遊戲 B：方塊捕手 (小數讀寫)
+                </button>
+            </div>
+
+            <div id="game-zone-A" class="bg-white border-4 border-purple-400 rounded-3xl p-6 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center border-b border-gray-100 pb-4 gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-3xl">🍕</span>
+                        <h3 class="text-xl md:text-2xl font-black text-purple-900 kids-font">遊戲 A：披薩爭奪戰</h3>
+                    </div>
+                    <span id="game-A-progress" class="bg-purple-100 text-purple-800 font-bold px-3.5 py-1 rounded-full text-sm">問題 1 / 3</span>
+                </div>
+
+                <p class="text-center font-bold text-gray-700 text-base md:text-lg">
+                    看一看左右兩盤同分母的披薩，誰吃得比較多？請點擊正確的比較符號！
+                </p>
+
+                <!-- 題目比較面板 -->
+                <div class="grid grid-cols-3 items-center justify-items-center bg-purple-50/50 p-6 rounded-2xl border-2 border-purple-100 max-w-2xl mx-auto">
+                    <!-- 左分數與圓形披薩 -->
+                    <div class="flex flex-col items-center gap-4">
+                        <svg id="game-A-svg-left" width="110" height="110" viewBox="0 0 220 220" class="drop-shadow-md"></svg>
+                        <div class="inline-flex flex-col items-center justify-center font-black text-2xl bg-white px-5 py-2 rounded-2xl border-2">
+                            <span id="game-A-txt-left-num" class="text-blue-600">2</span>
+                            <span class="h-0.5 w-8 bg-gray-500 my-0.5"></span>
+                            <span id="game-A-txt-left-denom" class="text-red-600">6</span>
+                        </div>
+                    </div>
+
+                    <!-- 中央待選符號格 -->
+                    <div id="game-A-symbol" class="w-16 h-16 bg-white border-4 border-dashed border-purple-300 rounded-2xl flex items-center justify-center text-3xl font-black text-purple-700 shadow-inner">
+                        ?
+                    </div>
+
+                    <!-- 右分數與圓形披薩 -->
+                    <div class="flex flex-col items-center gap-4">
+                        <svg id="game-A-svg-right" width="110" height="110" viewBox="0 0 220 220" class="drop-shadow-md"></svg>
+                        <div class="inline-flex flex-col items-center justify-center font-black text-2xl bg-white px-5 py-2 rounded-2xl border-2">
+                            <span id="game-A-txt-right-num" class="text-blue-600">4</span>
+                            <span class="h-0.5 w-8 bg-gray-500 my-0.5"></span>
+                            <span id="game-A-txt-right-denom" class="text-red-600">6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回饋訊息框 -->
+                <div id="game-A-feedback" class="text-center font-black text-lg h-8 flex items-center justify-center"></div>
+
+                <!-- 比較符號按鈕 -->
+                <div class="flex justify-center gap-4 max-w-sm mx-auto">
+                    <button onclick="submitGameAAnswer('<')" class="w-1/3 h-16 bg-yellow-400 hover:bg-yellow-300 text-yellow-950 font-black text-3xl rounded-2xl bouncy-btn shadow-md border-b-4 border-yellow-600">&lt;</button>
+                    <button onclick="submitGameAAnswer('=')" class="w-1/3 h-16 bg-yellow-400 hover:bg-yellow-300 text-yellow-950 font-black text-3xl rounded-2xl bouncy-btn shadow-md border-b-4 border-yellow-600">=</button>
+                    <button onclick="submitGameAAnswer('>')" class="w-1/3 h-16 bg-yellow-400 hover:bg-yellow-300 text-yellow-950 font-black text-3xl rounded-2xl bouncy-btn shadow-md border-b-4 border-yellow-600">&gt;</button>
+                </div>
+            </div>
+
+            <div id="game-zone-B" class="bg-white border-4 border-pink-400 rounded-3xl p-6 shadow-sm space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-center border-b border-gray-100 pb-4 gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-3xl">🔢</span>
+                        <h3 class="text-xl md:text-2xl font-black text-pink-900 kids-font">遊戲 B：小數方塊捕手</h3>
+                    </div>
+                    <span id="game-B-progress" class="bg-pink-100 text-pink-800 font-bold px-3.5 py-1 rounded-full text-sm">問題 1 / 3</span>
+                </div>
+
+                <p class="text-center font-bold text-gray-700 text-base md:text-lg">
+                    細心觀察題目，選出與中文讀法或百格方塊完全吻合的數值！
+                </p>
+
+                <!-- 題目核心視覺面板 -->
+                <div class="grid md:grid-cols-2 gap-6 items-center bg-pink-50/50 p-6 rounded-2xl border-2 border-pink-100 max-w-2xl mx-auto">
+                    <!-- 左邊題目字詞 -->
+                    <div class="text-center space-y-3">
+                        <span class="bg-pink-200 text-pink-800 text-xs font-bold px-2.5 py-1 rounded-md">任務指令</span>
+                        <div id="game-B-question-text" class="text-2xl md:text-3xl font-black text-pink-750 kids-font">
+                            讀作：「零點七三」
+                        </div>
+                    </div>
+                    <!-- 右邊輔助迷你百格圖 -->
+                    <div class="flex justify-center">
+                        <div id="game-B-grid" class="grid grid-cols-10 gap-0.5 p-1 bg-gray-300 rounded-xl shadow-inner w-[130px] h-[130px]">
+                            <!-- JS 動態生成格子 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 回饋訊息框 -->
+                <div id="game-B-feedback" class="text-center font-black text-lg h-8 flex items-center justify-center"></div>
+
+                <!-- 選擇題按鈕區域 -->
+                <div id="game-B-options" class="grid gap-4 sm:grid-cols-3 max-w-2xl mx-auto">
+                    <!-- 由 JS 渲染動態選項 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-100 border-t-2 border-slate-200 text-center py-6 text-sm text-gray-500 mt-12 space-y-2">
+        <p class="font-bold">✨ 數學魔法奇幻島 - 小三電子學習學習包 ✨</p>
+        <p class="text-xs opacity-75">© 2026 互動小學數學 e-Learning 平台. 符合香港課程指引指要。</p>
+    </footer>
+
+    <script>
+        // ---------------- 全局變數 ----------------
+        let totalScore = 0;
+        let isMuted = false;
+
+        // 音訊上下文初始化
+        let audioCtx = null;
+
+        // 第一課互動分數狀態
+        let currentDenom = 8;
+        let currentNumer = 3;
+
+        // 遊戲 A (同分母比較) 題目數據庫
+        const gameAQuestions = [
+            { leftNum: 3, rightNum: 5, denom: 8, correct: '<' },
+            { leftNum: 6, rightNum: 2, denom: 7, correct: '>' },
+            { leftNum: 4, rightNum: 4, denom: 10, correct: '=' },
+            { leftNum: 1, rightNum: 3, denom: 4, correct: '<' },
+            { leftNum: 9, rightNum: 6, denom: 12, correct: '>' }
+        ];
+        let gameAIndex = 0;
+        let gameAAnswered = false;
+
+        // 遊戲 B (兩位小數) 題目數據庫
+        const gameBQuestions = [
+            { type: 'text', qText: '請找出：「零點七三」', fillCells: 73, options: ['0.73', '7.3', '0.073'], correct: '0.73' },
+            { type: 'grid', qText: '觀察右方百格圖亮起部份，它是多少？', fillCells: 8, options: ['0.80', '0.08', '8.00'], correct: '0.08' },
+            { type: 'text', qText: '請找出：「零點三零」', fillCells: 30, options: ['0.30', '0.03', '3.00'], correct: '0.30' },
+            { type: 'grid', qText: '看圖回答，亮起格代表的小數是多少？', fillCells: 50, options: ['0.05', '0.50', '5.00'], correct: '0.50' }
+        ];
+        let gameBIndex = 0;
+        let gameBAnswered = false;
+
+        // ---------------- 聲音合成功能 ----------------
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(freq, type, duration) {
+            if (isMuted) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSuccessSound() {
+            playSound(523.25, 'sine', 0.15); // C5
+            setTimeout(() => {
+                playSound(659.25, 'sine', 0.25); // E5
+            }, 100);
+        }
+
+        function playFailSound() {
+            playSound(220, 'triangle', 0.3); // A3
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('mute-btn').innerText = isMuted ? "🔇" : "🔊";
+        }
+
+        // ---------------- 分頁切換 ----------------
+        function switchTab(tabId) {
+            // 音訊交互許可
+            initAudio();
+
+            // 隱藏所有分頁
+            document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
+            
+            // 取消導航欄激活態
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "bouncy-btn text-sm md:text-base font-bold px-4 py-2.5 rounded-xl transition text-blue-700 hover:bg-blue-100";
+            });
+
+            // 顯示當前分頁
+            document.getElementById(`page-${tabId}`).classList.remove('hidden');
+
+            // 設置激活態
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "bouncy-btn text-sm md:text-base font-bold px-4 py-2.5 rounded-xl transition text-blue-700 bg-white shadow-sm border border-blue-200";
+            }
+
+            // 分頁特定初始化
+            if (tabId === 'fraction') {
+                renderLivePizza();
+                drawPizzaSVG('compare-frac-svg-1', 3, 8);
+                drawPizzaSVG('compare-frac-svg-2', 5, 8);
+            } else if (tabId === 'decimal') {
+                initHundredGrid();
+                updateDecimalWidget(45);
+            } else if (tabId === 'games') {
+                initGameA();
+                initGameB();
+            }
+        }
+
+        // ---------------- STREAMING_CHUNK: 分數頁面邏輯 ----------------
+        function drawPizzaSVG(svgId, numerator, denominator) {
+            const svg = document.getElementById(svgId);
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const cx = 110, cy = 110, r = 90;
+
+            // 1. 底盤 (未烤好的白色生麵團)
+            const baseCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            baseCircle.setAttribute("cx", cx);
+            baseCircle.setAttribute("cy", cy);
+            baseCircle.setAttribute("r", r);
+            baseCircle.setAttribute("fill", "#F3F4F6");
+            baseCircle.setAttribute("stroke", "#D1D5DB");
+            baseCircle.setAttribute("stroke-width", "4");
+            svg.appendChild(baseCircle);
+
+            // 2. 切片與著色
+            for (let i = 0; i < denominator; i++) {
+                const angle = 360 / denominator;
+                const startAngle = i * angle - 90;
+                const endAngle = (i + 1) * angle - 90;
+
+                const rad1 = (startAngle * Math.PI) / 180;
+                const rad2 = (endAngle * Math.PI) / 180;
+
+                const x1 = cx + r * Math.cos(rad1);
+                const y1 = cy + r * Math.sin(rad1);
+                const x2 = cx + r * Math.cos(rad2);
+                const y2 = cy + r * Math.sin(rad2);
+
+                const largeArc = angle > 180 ? 1 : 0;
+                const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", pathData);
+
+                // 塗色: 如果當前片小於分子，則填黃金色芝士色，否則維持生麵團底
+                if (i < numerator) {
+                    path.setAttribute("fill", "#F59E0B"); // 芝士金黃色
+                    path.setAttribute("stroke", "#B45309"); // 烤焦焦外框
+                } else {
+                    path.setAttribute("fill", "#FFFFFF"); 
+                    path.setAttribute("stroke", "#E5E7EB");
+                }
+                path.setAttribute("stroke-width", "2");
+                svg.appendChild(path);
+            }
+
+            // 3. 畫分界黑線（即使沒著色，刀痕仍要把披薩平均切開）
+            for (let i = 0; i < denominator; i++) {
+                const angle = 360 / denominator;
+                const rad = ((i * angle - 90) * Math.PI) / 180;
+                const tx = cx + r * Math.cos(rad);
+                const ty = cy + r * Math.sin(rad);
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", cx);
+                line.setAttribute("y1", cy);
+                line.setAttribute("x2", tx);
+                line.setAttribute("y2", ty);
+                line.setAttribute("stroke", "#9CA3AF");
+                line.setAttribute("stroke-width", "1.5");
+                svg.appendChild(line);
+            }
+
+            // 4. 正中央放一塊圓形香腸，增加豐富度與披薩真實感
+            const pepperoni = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            pepperoni.setAttribute("cx", cx);
+            pepperoni.setAttribute("cy", cy);
+            pepperoni.setAttribute("r", "8");
+            pepperoni.setAttribute("fill", "#EF4444");
+            svg.appendChild(pepperoni);
+        }
+
+        function adjustDenominator(val) {
+            const next = currentDenom + val;
+            if (next >= 2 && next <= 12) {
+                currentDenom = next;
+                if (currentNumer > currentDenom) {
+                    currentNumer = currentDenom; // 分子不能大於分母
+                }
+                renderLivePizza();
+            }
+        }
+
+        function adjustNumerator(val) {
+            const next = currentNumer + val;
+            if (next >= 0 && next <= currentDenom) {
+                currentNumer = next;
+                renderLivePizza();
+            }
+        }
+
+        function renderLivePizza() {
+            document.getElementById('denom-val').innerText = currentDenom;
+            document.getElementById('numer-val').innerText = currentNumer;
+            
+            document.getElementById('live-denom').innerText = currentDenom;
+            document.getElementById('live-numer').innerText = currentNumer;
+
+            drawPizzaSVG('live-pizza-svg', currentNumer, currentDenom);
+
+            const desc = document.getElementById('live-pizza-desc');
+            if (currentNumer === 0) {
+                desc.innerHTML = `整塊披薩切成了 ${currentDenom} 份，但你 <span class="text-rose-600 font-black">1份都沒有吃</span> 喔！`;
+            } else if (currentNumer === currentDenom) {
+                desc.innerHTML = `整塊披薩切成了 ${currentDenom} 份，你拿走了全部分，也就是吃了 <span class="text-green-600 font-black">1 整塊披薩 (${currentDenom}/${currentDenom} = 1)</span>！`;
+            } else {
+                desc.innerHTML = `整塊披薩平均分成了 ${currentDenom} 份，你吃掉了其中的 <span class="text-blue-600 font-black">${currentNumer} 份</span>。`;
+            }
+        }
+
+        // ---------------- STREAMING_CHUNK: 小數頁面邏輯 ----------------
+        function initHundredGrid() {
+            const grid = document.getElementById('hundred-grid');
+            if (!grid) return;
+            if (grid.children.length > 0) return; // 避免反覆載入重複生成
+
+            for (let i = 1; i <= 100; i++) {
+                const cell = document.createElement('div');
+                cell.id = `grid-cell-${i}`;
+                cell.className = "bg-white rounded transition-all duration-200 cursor-pointer hover:bg-amber-100";
+                // 點擊格子直接把數值調整為當前格子序號
+                cell.onclick = () => {
+                    document.getElementById('decimal-slider').value = i;
+                    updateDecimalWidget(i);
+                };
+                grid.appendChild(cell);
+            }
+        }
+
+        function updateDecimalWidget(val) {
+            document.getElementById('decimal-cells').innerText = `${val} 格`;
+            const decVal = (val / 100).toFixed(2);
+            document.getElementById('decimal-value').innerText = decVal;
+
+            // 拆解位值填充數位表
+            const ones = "0";
+            const tenths = decVal.charAt(2);
+            const hundredths = decVal.charAt(3);
+
+            document.getElementById('pv-ones').innerText = ones;
+            document.getElementById('pv-tenths').innerText = tenths;
+            document.getElementById('pv-hundredths').innerText = hundredths;
+
+            // 更新百格圖著色
+            for (let i = 1; i <= 100; i++) {
+                const cell = document.getElementById(`grid-cell-${i}`);
+                if (cell) {
+                    if (i <= val) {
+                        cell.className = "bg-amber-400 rounded shadow-xs cursor-pointer hover:bg-amber-300";
+                    } else {
+                        cell.className = "bg-white rounded cursor-pointer hover:bg-amber-100";
+                    }
+                }
+            }
+        }
+
+        function revealReadText(btn, correctText) {
+            if (btn.innerText === "顯示正確讀法") {
+                btn.innerText = `讀作：${correctText}`;
+                btn.className = "w-full bg-emerald-500 text-white font-black text-xs py-2 rounded-xl bouncy-btn transition";
+                playSound(659.25, 'sine', 0.1);
+            } else {
+                btn.innerText = "顯示正確讀法";
+                btn.className = "w-full bg-blue-500 text-white font-black text-xs py-2 rounded-xl bouncy-btn transition";
+            }
+        }
+
+        // ---------------- STREAMING_CHUNK: 遊戲挑戰站控制邏輯 ----------------
+        function switchGame(gameType) {
+            const btnA = document.getElementById('btn-game-A');
+            const btnB = document.getElementById('btn-game-B');
+            const zoneA = document.getElementById('game-zone-A');
+            const zoneB = document.getElementById('game-zone-B');
+
+            if (gameType === 'A') {
+                zoneA.classList.remove('hidden');
+                zoneB.classList.add('hidden');
+                btnA.className = "px-5 py-3 font-black rounded-2xl bg-purple-600 text-white shadow-md border-b-4 border-purple-800 bouncy-btn transition text-sm md:text-base";
+                btnB.className = "px-5 py-3 font-black rounded-2xl bg-gray-200 text-gray-700 border-b-4 border-gray-300 bouncy-btn transition hover:bg-gray-300 text-sm md:text-base";
+                initGameA();
+            } else {
+                zoneA.classList.add('hidden');
+                zoneB.classList.remove('hidden');
+                btnB.className = "px-5 py-3 font-black rounded-2xl bg-pink-600 text-white shadow-md border-b-4 border-pink-800 bouncy-btn transition text-sm md:text-base";
+                btnA.className = "px-5 py-3 font-black rounded-2xl bg-gray-200 text-gray-700 border-b-4 border-gray-300 bouncy-btn transition hover:bg-gray-300 text-sm md:text-base";
+                initGameB();
+            }
+        }
+
+        // ---------------- 遊戲 A：披薩爭奪戰邏輯 ----------------
+        function initGameA() {
+            gameAAnswered = false;
+            const item = gameAQuestions[gameAIndex % gameAQuestions.length];
+            
+            document.getElementById('game-A-progress').innerText = `問題 ${gameAIndex + 1} / 3`;
+            document.getElementById('game-A-symbol').innerText = '?';
+            document.getElementById('game-A-symbol').className = "w-16 h-16 bg-white border-4 border-dashed border-purple-300 rounded-2xl flex items-center justify-center text-3xl font-black text-purple-700 shadow-inner";
+            
+            document.getElementById('game-A-txt-left-num').innerText = item.leftNum;
+            document.getElementById('game-A-txt-left-denom').innerText = item.denom;
+            document.getElementById('game-A-txt-right-num').innerText = item.rightNum;
+            document.getElementById('game-A-txt-right-denom').innerText = item.denom;
+
+            drawPizzaSVG('game-A-svg-left', item.leftNum, item.denom);
+            drawPizzaSVG('game-A-svg-right', item.rightNum, item.denom);
+
+            document.getElementById('game-A-feedback').innerText = "";
+        }
+
+        function submitGameAAnswer(choice) {
+            if (gameAAnswered) return;
+            const item = gameAQuestions[gameAIndex % gameAQuestions.length];
+            const feedback = document.getElementById('game-A-feedback');
+            const symbolBox = document.getElementById('game-A-symbol');
+
+            gameAAnswered = true;
+            symbolBox.innerText = choice;
+
+            if (choice === item.correct) {
+                // 答對了
+                playSuccessSound();
+                totalScore += 10;
+                updateScores();
+                symbolBox.className = "w-16 h-16 bg-green-100 border-4 border-green-500 rounded-2xl flex items-center justify-center text-4xl font-black text-green-700 shadow-md";
+                feedback.innerHTML = `<span class="text-green-600">🎉 太聰明了！你答對了！</span>`;
+
+                setTimeout(() => {
+                    if (gameAIndex < 2) {
+                        gameAIndex++;
+                        initGameA();
+                    } else {
+                        // 通關 A
+                        triggerConfetti();
+                        feedback.innerHTML = `<span class="text-purple-600">🏆 恭喜！你完成了【披薩爭奪戰】挑戰！</span>`;
+                    }
+                }, 1500);
+            } else {
+                // 答錯了
+                playFailSound();
+                symbolBox.className = "w-16 h-16 bg-rose-100 border-4 border-rose-500 rounded-2xl flex items-center justify-center text-4xl font-black text-rose-700 shadow-md";
+                feedback.innerHTML = `<span class="text-rose-500">❌ 再看看披薩，哪邊比較大？再試一次！</span>`;
+                setTimeout(() => {
+                    gameAAnswered = false;
+                    symbolBox.innerText = "?";
+                    symbolBox.className = "w-16 h-16 bg-white border-4 border-dashed border-purple-300 rounded-2xl flex items-center justify-center text-3xl font-black text-purple-700 shadow-inner";
+                    feedback.innerText = "";
+                }, 1800);
+            }
+        }
+
+        // ---------------- STREAMING_CHUNK: 遊戲 B：小數方塊捕手邏輯 ----------------
+        function initGameB() {
+            gameBAnswered = false;
+            const item = gameBQuestions[gameBIndex % gameBQuestions.length];
+
+            document.getElementById('game-B-progress').innerText = `問題 ${gameBIndex + 1} / 3`;
+            document.getElementById('game-B-question-text').innerText = item.qText;
+
+            // 渲染右邊百格圖
+            const grid = document.getElementById('game-B-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 100; i++) {
+                const mini = document.createElement('div');
+                mini.className = i <= item.fillCells ? "bg-pink-500 rounded-xs" : "bg-white rounded-xs";
+                grid.appendChild(mini);
+            }
+
+            // 渲染選項按鈕
+            const optionsBox = document.getElementById('game-B-options');
+            optionsBox.innerHTML = '';
+            
+            item.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white border-4 border-slate-200 hover:border-pink-300 font-black text-xl py-4 px-6 rounded-2xl shadow-sm hover:shadow-md bouncy-btn text-center hover:bg-pink-50/20 transition";
+                btn.innerText = opt;
+                btn.onclick = () => submitGameBAnswer(opt, btn);
+                optionsBox.appendChild(btn);
+            });
+
+            document.getElementById('game-B-feedback').innerText = "";
+        }
+
+        function submitGameBAnswer(choice, btnElement) {
+            if (gameBAnswered) return;
+            const item = gameBQuestions[gameBIndex % gameBQuestions.length];
+            const feedback = document.getElementById('game-B-feedback');
+
+            gameBAnswered = true;
+
+            if (choice === item.correct) {
+                // 答對了
+                playSuccessSound();
+                totalScore += 10;
+                updateScores();
+                
+                btnElement.className = "bg-green-500 text-white border-4 border-green-600 font-black text-xl py-4 px-6 rounded-2xl shadow-md text-center";
+                feedback.innerHTML = `<span class="text-green-600">🎉 太棒了！捕獲成功！小數魔法增強了！</span>`;
+
+                setTimeout(() => {
+                    if (gameBIndex < 2) {
+                        gameBIndex++;
+                        initGameB();
+                    } else {
+                        // 通關 B
+                        triggerConfetti();
+                        feedback.innerHTML = `<span class="text-pink-600">🏆 恭喜！你順利完成【小數方塊捕手】！</span>`;
+                    }
+                }, 1500);
+            } else {
+                // 答錯了
+                playFailSound();
+                btnElement.className = "bg-rose-100 text-rose-500 line-through border-4 border-rose-300 font-black text-xl py-4 px-6 rounded-2xl text-center shadow-xs";
+                feedback.innerHTML = `<span class="text-rose-500">❌ 不太對喔，再仔細數數或讀一讀看看！</span>`;
+                setTimeout(() => {
+                    gameBAnswered = false;
+                    btnElement.className = "bg-white border-4 border-slate-200 hover:border-pink-300 font-black text-xl py-4 px-6 rounded-2xl shadow-sm bouncy-btn text-center hover:bg-pink-50/20 transition";
+                    feedback.innerText = "";
+                }, 1800);
+            }
+        }
+
+        function updateScores() {
+            document.getElementById('header-score').innerText = totalScore;
+            document.getElementById('game-total-score').innerText = totalScore;
+        }
+
+        // ---------------- STREAMING_CHUNK: 網頁五彩撒花祝賀特效 (Confetti) ----------------
+        let confettiInterval = null;
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function triggerConfetti() {
+            canvas.classList.remove('hidden');
+            resizeConfettiCanvas();
+            particles = [];
+            
+            // 創建150個粒子
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 4,
+                    d: Math.random() * canvas.height,
+                    color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+
+            if (confettiInterval) clearInterval(confettiInterval);
+            confettiInterval = setInterval(drawConfetti, 20);
+
+            // 5 秒後自動停止，隱藏 canvas
+            setTimeout(() => {
+                clearInterval(confettiInterval);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.classList.add('hidden');
+            }, 5000);
+        }
+
+        function drawConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                p.x += Math.sin(p.tiltAngle);
+                p.tilt = Math.sin(p.tiltAngle - index / 3) * 15;
+
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                ctx.stroke();
+
+                // 越界重置到頂部
+                if (p.y > canvas.height) {
+                    particles[index] = {
+                        ...p,
+                        x: Math.random() * canvas.width,
+                        y: -20,
+                        tilt: Math.random() * 10 - 5
+                    };
+                }
+            });
+        }
+
+        function resizeConfettiCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeConfettiCanvas);
+
+        // 頁面初次載入
+        window.onload = function() {
+            switchTab('home');
+        };
+    </script>
+</body>
+</html>
